@@ -31,9 +31,9 @@ class App extends Component {
       currentMonth: undefined,
       previousMonth: undefined,
       showExpenseForm: false,
-      pinIsVfy:false
+      pinIsVfy:sessionStorage.getItem('pinIsVfy') == 'true'?true:false
     };
-
+    sessionStorage.setItem('pinIsVfy',this.state.pinIsVfy);
   }
 
   componentDidMount() {
@@ -333,7 +333,7 @@ class App extends Component {
     else if(this.state.pinIsVfy == false)
       return (
         <div className="content pin" >
-           <input  type="password" name="userEnterPIN" maxLength="4" onChange={ this.handleChange } />
+           <input  type="number" name="userEnterPIN" maxLength="4" onChange={ this.handleChange } />
            <button onClick={() => this.verifyLogin(this.state.pin,this.state.userEnterPIN)} >Login</button>
         </div>
       );
@@ -344,6 +344,7 @@ class App extends Component {
       this.setState({
         pinIsVfy: true
       });
+      sessionStorage.setItem('pinIsVfy',true);
     }
   }
 

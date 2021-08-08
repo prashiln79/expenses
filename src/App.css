@@ -52,10 +52,10 @@ a.material-icons {
 .pin{
   width: auto;
   display: flex;
-  justify-content: space-around;
-  flex-direction: column;
+  flex-direction: unset;
   padding: 10%;
-  align-content: flex-end;
+  align-content: center;
+  justify-content: center;
 }
 
 .pin input{
@@ -65,7 +65,7 @@ a.material-icons {
 
 .pin button{
   width: fit-content;
-  margin-top: 10px;
-  margin-left: 41%;
-  height: 2.5em;
+  margin-left: 10px;
+  height: 2em;
+  font-size: large;
 }
