@@ -34,7 +34,6 @@ input, select {
   border:none;
   color: white !important;
   cursor: default;
-  pointer-events: none;
   background-color: #50d29d;
 }
 

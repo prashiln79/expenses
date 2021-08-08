@@ -68,4 +68,8 @@ a.material-icons {
   margin-left: 10px;
   height: 2em;
   font-size: large;
+  background-color: #50d29d;
+  border: none;
+  border-radius: 4px;
+  color: white;
 }

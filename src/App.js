@@ -333,7 +333,7 @@ class App extends Component {
     else if(this.state.pinIsVfy == false)
       return (
         <div className="content pin" >
-           <input  type="password" name="userEnterPIN" maxLength="4" onChange={ this.handleChange } />
+           <input  type="password" placeholder="Enter PIN" name="userEnterPIN" maxLength="4" onChange={ this.handleChange } />
            <button onClick={() => this.verifyLogin(this.state.pin,this.state.userEnterPIN)} >Login</button>
         </div>
       );
