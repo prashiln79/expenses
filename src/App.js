@@ -13,9 +13,10 @@ import "./App.css";
 class App extends Component {
   constructor() {
     super();
-
+    this.handleChange = this.handleChange.bind(this);
+    this.verifyLogin = this.verifyLogin.bind(this);
     this.clientId =
-      "104219803451-fg73tpjdgupec78j1hope85bv933gti9.apps.googleusercontent.com";
+      "825310645531-8j0bnfk6ge5vb8q1j8mnq0sudop9ikod.apps.googleusercontent.com";
     this.spreadsheetId =
       process.env.REACT_APP_SHEET_ID ||
       "1uK7I_xBLxjsv934177jWlu523KVdFzV66835t6xBCQo";
@@ -29,7 +30,8 @@ class App extends Component {
       expense: {},
       currentMonth: undefined,
       previousMonth: undefined,
-      showExpenseForm: false
+      showExpenseForm: false,
+      pinIsVfy:false
     };
 
   }
@@ -216,7 +218,8 @@ class App extends Component {
           "Data!E2:E50",
           "Expenses!A2:F",
           "Current!H1",
-          "Previous!H1"
+          "Previous!H1",   
+          "Data!D2:D2",
         ]
       })
       .then(response => {
@@ -235,7 +238,8 @@ class App extends Component {
             .slice(0, 30),
           processing: false,
           currentMonth: response.result.valueRanges[3].values[0][0],
-          previousMonth: response.result.valueRanges[4].values[0][0]
+          previousMonth: response.result.valueRanges[4].values[0][0],
+          pin:response.result.valueRanges[5].values[0][0]
         });
       });
   }
@@ -256,6 +260,7 @@ class App extends Component {
                 <a
                   className="material-icons mdc-toolbar__icon"
                   aria-label="Sign in"
+                  title="Sign in"
                   alt="Sign in"
                   onClick={e => {
                     e.preventDefault();
@@ -268,6 +273,7 @@ class App extends Component {
                 <a
                   className="material-icons mdc-toolbar__icon"
                   aria-label="Sign out"
+                  title="Sign out"
                   alt="Sign out"
                   onClick={e => {
                     e.preventDefault();
@@ -293,7 +299,10 @@ class App extends Component {
                 Sign In
               </button>
             </div>}
-          {this.state.signedIn && this.renderBody()}
+            
+            { this.state.signedIn && this.renderPin()}
+
+          
         </div>
         <div
           ref={el => {
@@ -317,6 +326,32 @@ class App extends Component {
         </div>
       </div>
     );
+  }
+
+  renderPin() {
+    if (this.state.signedIn && this.state.pinIsVfy) return this.renderBody();
+    else if(this.state.pinIsVfy == false)
+      return (
+        <div className="content pin" >
+           <input  type="password" name="userEnterPIN" maxLength="4" onChange={ this.handleChange } />
+           <button onClick={() => this.verifyLogin(this.state.pin,this.state.userEnterPIN)} >Login</button>
+        </div>
+      );
+  }
+
+  verifyLogin(pin,enterPinValue){
+    if(pin == enterPinValue){ 
+      this.setState({
+        pinIsVfy: true
+      });
+    }
+  }
+
+  handleChange({ target }) {
+    this.setState({
+      [target.name]: target.value
+    });
+    
   }
 
   renderBody() {

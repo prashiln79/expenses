@@ -48,3 +48,24 @@ a.material-icons {
     right: 5rem;
   }
 }
+
+.pin{
+  width: auto;
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  padding: 10%;
+  align-content: flex-end;
+}
+
+.pin input{
+  height: 30px;
+  text-align: center;
+}
+
+.pin button{
+  width: fit-content;
+  margin-top: 10px;
+  margin-left: 41%;
+  height: 2.5em;
+}

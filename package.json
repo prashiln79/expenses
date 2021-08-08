@@ -2,7 +2,9 @@
   "name": "expenses",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://prashiln79.github.io/expenses",
   "dependencies": {
+    "gh-pages": "^3.2.3",
     "material-components-web": "^0.12.1",
     "material-icons": "^0.1.0",
     "react": "^15.5.4",
@@ -15,7 +17,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "browserslist": {
     "production": [
