@@ -19,12 +19,12 @@ export default class ExpenseDetail extends Component {
           <span className="mdc-list-item__text__secondary">
             {this.formatDate(this.props.expense.date)}
             {this.props.expense.description
-              ? ` ${this.props.expense.description.replace(/^(.{14}).+/, "$1…")}`
+              ? ` ${this.props.expense.description.replace(/^(.{14}).+/, "₹1…")}`
               : ""}
           </span>
         </span>
         <span className="mdc-list-item__end-detail">
-          ${this.props.expense.amount}
+        ₹{this.props.expense.amount}
         </span>
       </li>
     );

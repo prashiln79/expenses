@@ -333,7 +333,7 @@ class App extends Component {
     else if(this.state.pinIsVfy == false)
       return (
         <div className="content pin" >
-           <input  type="number" name="userEnterPIN" maxLength="4" onChange={ this.handleChange } />
+           <input  type="password" name="userEnterPIN" maxLength="4" onChange={ this.handleChange } />
            <button onClick={() => this.verifyLogin(this.state.pin,this.state.userEnterPIN)} >Login</button>
         </div>
       );
@@ -352,6 +352,10 @@ class App extends Component {
     this.setState({
       [target.name]: target.value
     });
+
+    if(target.value && target.value.length == 4){
+      this.verifyLogin(this.state.pin,target.value);
+    }
     
   }
 

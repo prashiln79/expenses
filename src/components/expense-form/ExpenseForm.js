@@ -89,7 +89,7 @@ class ExpenseForm extends Component {
           </div>
         </aside>
         <div className="mdc-form-field">
-          <div className="mdc-textfield">
+          <div className="mdc-textfield" style={{width:"100%"}}>
             <input
               name="amount"
               className="mdc-textfield__input"
@@ -107,9 +107,10 @@ class ExpenseForm extends Component {
           </div>
         </div>
 
-        <div className="mdc-form-field">
+        <div className="mdc-form-field" style={{width:"100%"}}>
           <select
             name="category"
+            style={{width:"100%"}}
             className="mdc-select"
             value={this.props.expense.category}
             onChange={this.handleInputChange}
@@ -122,7 +123,7 @@ class ExpenseForm extends Component {
         </div>
 
         <div className="mdc-form-field">
-          <div className="mdc-textfield">
+          <div className="mdc-textfield" style={{width:"100%"}}>
             <input
               name="description"
               className="mdc-textfield__input"
@@ -135,7 +136,7 @@ class ExpenseForm extends Component {
         </div>
 
         <div className="mdc-form-field">
-          <div className="mdc-textfield">
+          <div className="mdc-textfield" style={{width:"100%"}}>
             <input
               name="date"
               className="mdc-textfield__input"
@@ -148,9 +149,10 @@ class ExpenseForm extends Component {
           </div>
         </div>
 
-        <div className="mdc-form-field">
+        <div className="mdc-form-field" style={{width:"100%"}}>
           <select
             name="account"
+            style={{width:"100%"}}
             className="mdc-select"
             value={this.props.expense.account}
             onChange={this.handleInputChange}
@@ -165,7 +167,7 @@ class ExpenseForm extends Component {
         <div className="mdc-form-field mdc-form-submit">
           <input
             type="submit"
-            className="mdc-button"
+            className="mdc-button primary-button"
             value={this.props.expense.id ? "Update" : "Add"}
             disabled={!this.state.isValid}
           />
