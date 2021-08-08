@@ -73,3 +73,14 @@ a.material-icons {
   border-radius: 4px;
   color: white;
 }
+
+.mdc-card__supporting-text ul{
+  margin-left: -25px;
+}
+
+.header-drop-down{
+  margin-top: 0;
+  background-color: #50d29d;
+  color: white;
+  width: 15em;
+}

@@ -177,6 +177,7 @@ class ExpenseForm extends Component {
               className="mdc-button"
               onClick={() => this.dialog.show()}
               value="Delete"
+              disabled={this.props.totalRec == 1}
             />}
           <input
             type="button"

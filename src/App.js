@@ -208,7 +208,7 @@ class App extends Component {
       values: [this.formatExpense(expense)]
     });
   }
-
+  //1:2
   load() {
     window.gapi.client.sheets.spreadsheets.values
       .batchGet({
@@ -219,6 +219,7 @@ class App extends Component {
           "Expenses!A2:F",
           "Current!H1",
           "Previous!H1",   
+          "Data!F2:F2",
           "Data!D2:D2",
         ]
       })
@@ -239,7 +240,8 @@ class App extends Component {
           processing: false,
           currentMonth: response.result.valueRanges[3].values[0][0],
           previousMonth: response.result.valueRanges[4].values[0][0],
-          pin:response.result.valueRanges[5].values[0][0]
+          pin:response.result.valueRanges[5].values[0][0],
+          limitPerMonth:response.result.valueRanges[6].values[0][0],
         });
       });
   }
@@ -250,7 +252,12 @@ class App extends Component {
         <header className="mdc-toolbar mdc-toolbar--fixed">
           <div className="mdc-toolbar__row">
             <section className="mdc-toolbar__section mdc-toolbar__section--align-start">
-              <span className="mdc-toolbar__title">Expenses</span>
+              <span className="mdc-toolbar__title">
+                <select className="mdc-select header-drop-down">
+                  <option>Daily Expenses</option>
+                  <option>Loan</option>
+                </select>
+              </span>
             </section>
             <section
               className="mdc-toolbar__section mdc-toolbar__section--align-end"
@@ -376,6 +383,7 @@ class App extends Component {
           categories={this.state.categories}
           accounts={this.state.accounts}
           expense={this.state.expense}
+          totalRec={this.state.expenses.length}
           onSubmit={this.handleExpenseSubmit}
           onCancel={this.handleExpenseCancel}
           onDelete={this.handleExpenseDelete}
@@ -393,7 +401,10 @@ class App extends Component {
               </h1>
             </section>
             <section className="mdc-card__supporting-text">
-              Previous month: {this.state.previousMonth}
+              <ul>
+                <li>Previous month: {this.state.previousMonth}</li>
+                <li>Monthly spending limit Remaining: {this.state.currentMonth.slice(0,1)+(parseFloat(this.state.limitPerMonth)-parseFloat(this.state.currentMonth.slice(1)))}</li>
+              </ul>
             </section>
           </div>
           <ExpenseList
