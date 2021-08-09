@@ -31,6 +31,7 @@ class App extends Component {
       currentMonth: undefined,
       previousMonth: undefined,
       showExpenseForm: false,
+      maxRecToShow:30,
       pinIsVfy:sessionStorage.getItem('pinIsVfy') == 'true'?true:false
     };
     sessionStorage.setItem('pinIsVfy',this.state.pinIsVfy);
@@ -236,7 +237,7 @@ class App extends Component {
           expenses: (response.result.valueRanges[2].values || [])
             .map(this.parseExpense)
             .reverse()
-            .slice(0, 30),
+            .slice(0, this.state.maxRecToShow),
           processing: false,
           currentMonth: response.result.valueRanges[3].values[0][0],
           previousMonth: response.result.valueRanges[4].values[0][0],
@@ -253,10 +254,11 @@ class App extends Component {
           <div className="mdc-toolbar__row">
             <section className="mdc-toolbar__section mdc-toolbar__section--align-start">
               <span className="mdc-toolbar__title">
-                <select className="mdc-select header-drop-down">
+              Daily Expenses
+                {/* <select className="mdc-select header-drop-down">
                   <option>Daily Expenses</option>
                   <option>Loan</option>
-                </select>
+                </select> */}
               </span>
             </section>
             <section
@@ -402,8 +404,8 @@ class App extends Component {
             </section>
             <section className="mdc-card__supporting-text">
               <ul>
-                <li>Previous month: {this.state.previousMonth}</li>
-                <li>Monthly spending limit Remaining: {this.state.currentMonth.slice(0,1)+(parseFloat(this.state.limitPerMonth)-parseFloat(this.state.currentMonth.slice(1)))}</li>
+                <li>Previous month: <b>{this.state.previousMonth}</b></li>
+                <li>Monthly spending limit Remaining: <b>{this.state.currentMonth.slice(0,1)+(parseFloat(this.state.limitPerMonth) - parseFloat(this.state.currentMonth.slice(1)))}</b></li>
               </ul>
             </section>
           </div>
@@ -411,12 +413,15 @@ class App extends Component {
             expenses={this.state.expenses}
             onSelect={this.handleExpenseSelect}
           />
+          {(this.state.expenses.length >= this.state.maxRecToShow) &&
+              <div className="show-all"><button className="mdc-button" onClick={() => this.state.maxRecToShow=this.state.maxRecToShow+this.state.maxRecToShow}>show all</button></div>
+          }
           <button
             onClick={() => this.onExpenseNew()}
             className="mdc-fab app-fab--absolute material-icons"
             aria-label="Add expense"
           >
-            <span className="mdc-fab__icon">add</span>
+            <span className="mdc-fab__icon ">add</span>
           </button>
         </div>
       );

@@ -84,3 +84,18 @@ a.material-icons {
   color: white;
   width: 15em;
 }
+
+.show-all{
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+}
+
+.show-all button{
+  border: 0;
+  background: aquamarine;
+  box-sizing: content-box;
+  border-radius: 30px;
+  color: #ffffff;
+  font: small-caption;
+}
