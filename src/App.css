@@ -99,3 +99,19 @@ a.material-icons {
   color: #ffffff;
   font: small-caption;
 }
+
+.nav-bar{
+  display: flex;
+  padding: 4px;
+  justify-content: space-around;
+}
+
+.nav-bar .mdc-button{
+  font-size: 0.7em;
+  height: 35px;
+  width: min-content;
+  background-color: #2ed6a8;
+  border-radius: 15px;
+  border: 0;
+  color: aliceblue;
+}

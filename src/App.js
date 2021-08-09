@@ -26,6 +26,10 @@ class App extends Component {
       accounts: [],
       categories: [],
       expenses: [],
+      loans:[],
+      totalLoan:undefined,
+      totalEMI:undefined,
+      showLoanDetails:false,
       processing: true,
       expense: {},
       currentMonth: undefined,
@@ -178,6 +182,22 @@ class App extends Component {
     };
   }
 
+  parseLoan(value, index) {
+    return {
+      id: `Loans!A${index + 2}`,
+      startDate: value[0],
+      endDate: value[1],
+      description: value[2],
+      type: value[3],
+      total: value[4],
+      paid: value[5],
+      paidPercentage: value[6],
+      loanTerm: value[7],
+      interestRate: value[8],
+      monthlyInstallment: value[9]
+    };
+  }
+
   formatExpense(expense) {
     return [
       `=DATE(${expense.date.substr(0, 4)}, ${expense.date.substr(
@@ -222,6 +242,9 @@ class App extends Component {
           "Previous!H1",   
           "Data!F2:F2",
           "Data!D2:D2",
+          "Loan!A2:J",
+          "Loan!K2:K2",
+          "Loan!L2:L2",
         ]
       })
       .then(response => {
@@ -243,9 +266,17 @@ class App extends Component {
           previousMonth: response.result.valueRanges[4].values[0][0],
           pin:response.result.valueRanges[5].values[0][0],
           limitPerMonth:response.result.valueRanges[6].values[0][0],
+          loans: (response.result.valueRanges[7].values || [])
+          .map(this.parseLoan)
+          .reverse()
+          .slice(0, this.state.maxRecToShow),
+          totalLoan: response.result.valueRanges[8].values[0][0],
+          totalEMI: response.result.valueRanges[9].values[0][0],
         });
       });
   }
+
+
 
   render() {
     return (
@@ -378,6 +409,8 @@ class App extends Component {
       );
   }
 
+ 
+
   renderExpenses() {
     if (this.state.showExpenseForm)
       return (
@@ -395,22 +428,29 @@ class App extends Component {
     else
       return (
         <div>
-          <div className="mdc-card">
+          <nav className="nav-bar">
+            <button className="mdc-button" onClick={() =>this.setState({showLoanDetails : false})}>Daily Expenses</button>
+            <button className="mdc-button"  style={{backgroundColor: this.state.showLoanDetails ? 'red':'#2ed6a8'} } onClick={() =>this.setState({showLoanDetails : true})}>Loan Details</button>
+            <button className="mdc-button">Explore</button>
+            <button className="mdc-button">Notes</button>
+          </nav>
+
+          <div className="mdc-card" >
             <section className="mdc-card__primary">
-              <h2 className="mdc-card__subtitle">This month you've spent:</h2>
+              <h2 className="mdc-card__subtitle">{this.state.showLoanDetails?'Total Pending Loan':"This month you've spent:" }</h2>
               <h1 className="mdc-card__title mdc-card__title--large center">
-                {this.state.currentMonth}
+                {this.state.showLoanDetails?this.state.totalLoan:this.state.currentMonth}
               </h1>
             </section>
             <section className="mdc-card__supporting-text">
               <ul>
-                <li>Previous month: <b>{this.state.previousMonth}</b></li>
-                <li>Monthly spending limit Remaining: <b>{this.state.currentMonth.slice(0,1)+(parseFloat(this.state.limitPerMonth) - parseFloat(this.state.currentMonth.slice(1)))}</b></li>
+                <li>{this.state.showLoanDetails? 'Total Monthly EMI':'Previous month'}: <b>{this.state.showLoanDetails? this.state.totalEMI:this.state.previousMonth}</b></li>
+                <li>{this.state.showLoanDetails? 'Number Of Loan':'Monthly spending limit Remaining'}: <b>{this.state.showLoanDetails?this.state.loans.length:this.state.currentMonth.slice(0,1)+(parseFloat(this.state.limitPerMonth) - parseFloat(this.state.currentMonth.replace(/,/g,'').slice(1)))}</b></li>
               </ul>
             </section>
           </div>
           <ExpenseList
-            expenses={this.state.expenses}
+            expenses={this.state.showLoanDetails?this.state.loans:this.state.expenses}
             onSelect={this.handleExpenseSelect}
           />
           {(this.state.expenses.length >= this.state.maxRecToShow) &&
