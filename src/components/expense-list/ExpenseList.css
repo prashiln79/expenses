@@ -39,3 +39,16 @@
 .Bambino {
   background: rgb(138, 222, 255)
 }
+.progress-bar{
+  border: 1px solid #ccc!important;
+  display: flex;
+  border-radius: 8px;
+  background-color: darkgrey;
+}
+
+.progress-bar div{
+  color: #000!important;
+  background-color: #3fcadc!important;
+  height: 24px;
+  border-radius: 8px;
+}

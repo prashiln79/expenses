@@ -268,7 +268,6 @@ class App extends Component {
           limitPerMonth:response.result.valueRanges[6].values[0][0],
           loans: (response.result.valueRanges[7].values || [])
           .map(this.parseLoan)
-          .reverse()
           .slice(0, this.state.maxRecToShow),
           totalLoan: response.result.valueRanges[8].values[0][0],
           totalEMI: response.result.valueRanges[9].values[0][0],

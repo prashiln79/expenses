@@ -14,11 +14,12 @@ export default class ExpenseDetail extends Component {
         onClick={() => this.props.onSelect(this.props.expense)}
       >
         <ExpenseIcon category={this.props.expense.type?this.props.expense.type:this.props.expense.category} />
-        <span className="mdc-list-item__text">
-          {this.props.expense.type?this.props.expense.type:this.props.expense.category}
-          <span className="mdc-list-item__text__secondary">
-            {this.formatDate(this.props.expense.startDate?this.props.expense.startDate:this.props.expense.date)}
-            {this.props.expense.description
+        <span className="mdc-list-item__text" style={{width:this.props.expense.paidPercentage ? '40%':''}}   >
+          {this.props.expense.type ? this.props.expense.type:this.props.expense.category}
+            {this.props.expense.startDate ? <div className="progress-bar"><div style={{width:(this.props.expense.paidPercentage).toString()}}>{this.props.expense.paidPercentage}</div></div>:''}
+            <span className="mdc-list-item__text__secondary">
+            {this.props.expense.startDate ?'':this.formatDate(this.props.expense.date)}
+             {this.props.expense.category && this.props.expense.description
               ? ` ${this.props.expense.description.replace(/^(.{14}).+/, "₹1…")}`
               : ""}
           </span>
