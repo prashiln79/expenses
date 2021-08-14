@@ -1,0 +1,47 @@
+form {
+  padding: 0 10vw;
+  margin: 0 auto;
+  background-color: white;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-content: stretch;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+}
+input, select {
+  min-width: 80%;
+}
+.mdc-form-field {
+  display: block;
+  margin-bottom: 10px;
+  width: initial;
+}
+.mdc-select, .mdc-form-submit {
+  margin-top: 24px;
+}
+.mdc-form-submit {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.mdc-button{
+  border: 1px solid #5a4c4c;
+  margin: 0 5px;
+}
+
+.primary-button{
+  border:none;
+  color: white !important;
+  cursor: default;
+  background-color: #50d29d;
+}
+
+.mdc-textfield__input{
+  width: 100% !important
+}
+
+.mdc-form-field .mdc-select .mdc-textfield{
+  box-sizing: content-box;
+  width: 100% !important;
+}

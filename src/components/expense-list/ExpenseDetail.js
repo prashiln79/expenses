@@ -16,17 +16,23 @@ export default class ExpenseDetail extends Component {
         <ExpenseIcon category={this.props.expense.type?this.props.expense.type:this.props.expense.category} />
         <span className="mdc-list-item__text" style={{width:this.props.expense.paidPercentage ? '40%':''}}   >
           {this.props.expense.type ? this.props.expense.type:this.props.expense.category}
-            {this.props.expense.startDate ? <div className="progress-bar"><div style={{width:(this.props.expense.paidPercentage).toString()}}>{this.props.expense.paidPercentage}</div></div>:''}
+            {this.props.expense.startDate ? <div className="progress-bar"><div style={{width:(this.props.expense.paidPercentage||'').toString()}}>{this.props.expense.paidPercentage}</div></div>:''}
             <span className="mdc-list-item__text__secondary">
             {this.props.expense.startDate ?'':this.formatDate(this.props.expense.date)}
-             {this.props.expense.category && this.props.expense.description
-              ? ` ${this.props.expense.description.replace(/^(.{14}).+/, "₹1…")}`
-              : ""}
+      
           </span>
         </span>
-        <span className="mdc-list-item__end-detail">
-        ₹{this.props.expense.total?this.props.expense.total:this.props.expense.amount}
+        <span className="mdc-list-item__end-detail" style={{width: this.props.expense.loanAmount ? '30%':'fit-content'} }>
+        ₹{this.props.expense.loanAmount?this.props.expense.loanAmount:this.props.expense.amount}
+        {
+          (this.props.expense.loanAmount)? 
+          <span>
+          {this.props.expense.paid}
+          </span>:""
+        }
         </span>
+       
+        
       </li>
     );
   }

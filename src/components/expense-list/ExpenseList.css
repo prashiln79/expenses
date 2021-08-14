@@ -9,7 +9,12 @@
   justify-content: center;
 }
 .mdc-list-item__end-detail {
-  width: auto;
+  width: fit-content;
+}
+
+.mdc-list-item__end-detail span{
+  font-size: smaller;
+  display: block;
 }
 
 .Groceries {
@@ -40,15 +45,17 @@
   background: rgb(138, 222, 255)
 }
 .progress-bar{
-  border: 1px solid #ccc!important;
+  border: 1px solid #18292c!important;
   display: flex;
   border-radius: 8px;
-  background-color: darkgrey;
+  background-color: #d0f5f3
 }
 
 .progress-bar div{
   color: #000!important;
-  background-color: #3fcadc!important;
+  background-color: #00b8b8!important;
   height: 24px;
   border-radius: 8px;
+  font-size: smaller;
+  font-family: monospace;
 }

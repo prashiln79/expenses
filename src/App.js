@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ExpenseList, ExpenseForm, LoadingBar } from "./components/index";
+import { ExpenseList, ExpenseForm, UtilityForm, LoanForm, LoadingBar } from "./components/index";
 import { MDCSnackbar } from "@material/snackbar/dist/mdc.snackbar.js";
 
 import "@material/fab/dist/mdc.fab.css";
@@ -25,11 +25,13 @@ class App extends Component {
       signedIn: undefined,
       accounts: [],
       categories: [],
+      loanCategories: [],
       expenses: [],
       loans:[],
+      utilitys:[],
       totalLoan:undefined,
       totalEMI:undefined,
-      showLoanDetails:false,
+      currentView:'expense',
       processing: true,
       expense: {},
       currentMonth: undefined,
@@ -87,13 +89,36 @@ class App extends Component {
 
   handleExpenseSubmit = () => {
     this.setState({ processing: true, showExpenseForm: false });
-    const submitAction = (this.state.expense.id
+
+    let id ;
+    let state ;
+
+    switch (this.state.currentView) {
+      
+      case 'expense':
+        id = this.state.expense.id;
+        state = this.state.expense;
+      break;
+
+      case 'loan':
+        id = this.state.loan.id;
+        state = this.state.loan;
+      break;
+
+      case 'utility':
+        id = this.state.utility.id;
+        state = this.state.utility;
+      break;
+
+    }
+
+    const submitAction = (id
       ? this.update
       : this.append).bind(this);
-    submitAction(this.state.expense).then(
+    submitAction(state).then(
       response => {
         this.snackbar.show({
-          message: `Expense ${this.state.expense.id ? "updated" : "added"}!`
+          message: `Expense ${id ? "updated" : "added"}!`
         });
         this.load();
       },
@@ -106,9 +131,30 @@ class App extends Component {
   }
 
   handleExpenseChange = (attribute, value) => {
-    this.setState({
-      expense: Object.assign({}, this.state.expense, { [attribute]: value })
-    });
+
+    switch (this.state.currentView) {
+      
+      case 'expense':
+        this.setState({
+          expense: Object.assign({}, this.state.expense, { [attribute]: value })
+        });
+      break;
+
+      case 'loan':
+        this.setState({
+          loan: Object.assign({}, this.state.loan, { [attribute]: value })
+        });
+      break;
+
+      case 'utility':
+        this.setState({
+          utility: Object.assign({}, this.state.utility, { [attribute]: value })
+        });
+      break;
+
+    }
+
+    
   }
 
   handleExpenseDelete = (expense) => {
@@ -145,8 +191,22 @@ class App extends Component {
       );
   }
 
-  handleExpenseSelect = (expense) => {
-    this.setState({ expense: expense, showExpenseForm: true });
+  handleExpenseSelect = (data) => {
+
+    switch (this.state.currentView) {
+      case 'expense':
+        this.setState({ expense: data, showExpenseForm: true });
+      break;
+
+      case 'loan':
+        this.setState({ loan: data, showExpenseForm: true });
+      break;
+
+      case 'utility':
+        this.setState({ utility: data, showExpenseForm: true });
+      break;
+    }
+    
   }
 
   handleExpenseCancel = () => {
@@ -155,20 +215,60 @@ class App extends Component {
 
   onExpenseNew() {
     const now = new Date();
-    this.setState({
-      showExpenseForm: true,
-      expense: {
-        amount: "",
-        description: "",
-        date: `${now.getFullYear()}-${now.getMonth() < 9
-          ? "0" + (now.getMonth() + 1)
-          : now.getMonth() + 1}-${now.getDate() < 10
-          ? "0" + now.getDate()
-          : now.getDate()}`,
-        category: this.state.categories[0],
-        account: this.state.accounts[0]
-      }
-    });
+    const today = `${now.getFullYear()}-${now.getMonth() < 9
+      ? "0" + (now.getMonth() + 1)
+      : now.getMonth() + 1}-${now.getDate() < 10
+      ? "0" + now.getDate()
+      : now.getDate()}`
+
+    switch (this.state.currentView) {
+      
+      case 'expense':
+        this.setState({
+          showExpenseForm: true,
+          expense: {
+            amount: "",
+            description: "",
+            date: `${now.getFullYear()}-${now.getMonth() < 9
+              ? "0" + (now.getMonth() + 1)
+              : now.getMonth() + 1}-${now.getDate() < 10
+              ? "0" + now.getDate()
+              : now.getDate()}`,
+            category: this.state.categories[0],
+            account: this.state.accounts[0]
+          }
+        });
+      break;
+
+      case 'loan':
+        this.setState({
+          showExpenseForm: true,
+          loan: {
+            startDate: today,
+            endDate: today,
+            notes: "",
+            category: this.state.loanCategories[0],
+            loanAmount:"",
+            interestRate:""
+          }
+        });
+      break;
+
+      case 'utility':
+        this.setState({
+          showExpenseForm: true,
+          utility: {
+            startDate: today,
+            endDate: today,
+            notes: "",
+            category: this.state.utilityCategories[0],
+            billAmount:"",
+            unit:""
+          }
+        });
+      break;
+  }
+
   }
 
   parseExpense(value, index) {
@@ -177,7 +277,7 @@ class App extends Component {
       date: value[0],
       description: value[1],
       category: value[3],
-      amount: value[4].replace(",", ""),
+      amount: (value[4] || '').replace(/,/g, ""),
       account: value[2]
     };
   }
@@ -187,34 +287,89 @@ class App extends Component {
       id: `Loans!A${index + 2}`,
       startDate: value[0],
       endDate: value[1],
-      description: value[2],
-      type: value[3],
-      total: value[4],
+      notes: value[2],
+      category: value[3],
+      loanAmount: (value[4] || '').replace(/,/g, ""),
       paid: value[5],
-      paidPercentage: value[6],
-      loanTerm: value[7],
-      interestRate: value[8],
+      loanTerm: value[6],
+      interestRate: (value[7] || '').replace(/%/g, ""),
+      paidPercentage: value[8],
       monthlyInstallment: value[9]
     };
   }
 
+  parseUtility(value, index) {
+    return {
+      id: `Utility!A${index + 2}`,
+      startDate: value[0],
+      endDate: value[1],
+      notes: value[2],
+      category: value[3],
+      billAmount:(value[4] || '').replace(/,/g, ""),
+      unit:value[5],
+    };
+  }
+
   formatExpense(expense) {
-    return [
-      `=DATE(${expense.date.substr(0, 4)}, ${expense.date.substr(
-        5,
-        2
-      )}, ${expense.date.substr(-2)})`,
-      expense.description,
-      expense.account,
-      expense.category,
-      expense.amount
-    ];
+
+    switch (this.state.currentView) {
+      case 'expense':
+        return [
+          `=DATE(${expense.date.substr(0, 4)}, ${expense.date.substr(
+            5,
+            2
+          )}, ${expense.date.substr(-2)})`,
+          expense.description,
+          expense.account,
+          expense.category,
+          expense.amount
+        ];
+      break;
+
+      case 'loan':
+        return [
+          `=DATE(${expense.startDate.substr(0, 4)}, ${expense.startDate.substr(
+            5,
+            2
+          )}, ${expense.startDate.substr(-2)})`,
+          `=DATE(${expense.endDate.substr(0, 4)}, ${expense.endDate.substr(
+            5,
+            2
+          )}, ${expense.endDate.substr(-2)})`,
+          expense.notes,
+          expense.category,
+          expense.loanAmount,
+          0,
+          expense.loanTerm,
+          expense.interestRate+'%',
+        ];
+      break;
+
+      case 'utility':
+        return [
+          `=DATE(${expense.startDate.substr(0, 4)}, ${expense.startDate.substr(
+            5,
+            2
+          )}, ${expense.startDate.substr(-2)})`, 
+          `=DATE(${expense.endDate.substr(0, 4)}, ${expense.endDate.substr(
+            5,
+            2
+          )}, ${expense.endDate.substr(-2)})`,
+          expense.notes,
+          expense.category,
+          expense.billAmount,
+          expense.unit
+        ];
+      break;
+    }
+
+   
   }
 
   append(expense) {
     return window.gapi.client.sheets.spreadsheets.values.append({
       spreadsheetId: this.spreadsheetId,
-      range: "Expenses!A1",
+      range: [this.state.currentView == 'loan'?"Loan!A1":this.state.currentView == 'utility'?"Utility!A1":"Expenses!A1"],
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
       values: [this.formatExpense(expense)]
@@ -242,9 +397,13 @@ class App extends Component {
           "Previous!H1",   
           "Data!F2:F2",
           "Data!D2:D2",
-          "Loan!A2:J",
-          "Loan!K2:K2",
-          "Loan!L2:L2",
+          "Loans!A2:J",
+          "Loans!K2:K2",
+          "Loans!L2:L2",
+          "Data!G2:G50",
+          "Data!H2:H50",
+          "Utility!A2:F",
+          "Utility!G2:G2",
         ]
       })
       .then(response => {
@@ -254,9 +413,18 @@ class App extends Component {
         const categories = response.result.valueRanges[1].values.map(
           items => items[0]
         );
+        const loanCategories = response.result.valueRanges[10].values.map(
+          items => items[0]
+        );
+        const utilityCategories = response.result.valueRanges[11].values.map(
+          items => items[0]
+        );
+        
         this.setState({
           accounts: accounts,
           categories: categories,
+          loanCategories:loanCategories,
+          utilityCategories:utilityCategories,
           expenses: (response.result.valueRanges[2].values || [])
             .map(this.parseExpense)
             .reverse()
@@ -271,6 +439,10 @@ class App extends Component {
           .slice(0, this.state.maxRecToShow),
           totalLoan: response.result.valueRanges[8].values[0][0],
           totalEMI: response.result.valueRanges[9].values[0][0],
+          utilitys: (response.result.valueRanges[12].values || [])
+          .map(this.parseUtility)
+          .slice(0, this.state.maxRecToShow),
+          totalUtilityBill: response.result.valueRanges[13].values[0][0],
         });
       });
   }
@@ -411,7 +583,10 @@ class App extends Component {
  
 
   renderExpenses() {
-    if (this.state.showExpenseForm)
+    if(this.state.showExpenseForm)
+    switch (this.state.currentView){
+
+      case 'expense':
       return (
         <ExpenseForm
           categories={this.state.categories}
@@ -424,32 +599,64 @@ class App extends Component {
           onChange={this.handleExpenseChange}
         />
       );
+      break;
+
+      case 'loan':
+      return (
+        <LoanForm
+          loanCategories={this.state.loanCategories}
+          loan={this.state.loan}
+          totalRec={this.state.loans.length}
+          onSubmit={this.handleExpenseSubmit}
+          onCancel={this.handleExpenseCancel}
+          onDelete={this.handleExpenseDelete}
+          onChange={this.handleExpenseChange}
+        />
+      );
+      break;
+
+      case 'utility':
+      return (
+        <UtilityForm
+          utilityCategories={this.state.utilityCategories}
+          utility={this.state.utility}
+          totalRec={this.state.utilitys.length}
+          onSubmit={this.handleExpenseSubmit}
+          onCancel={this.handleExpenseCancel}
+          onDelete={this.handleExpenseDelete}
+          onChange={this.handleExpenseChange}
+        />
+      );
+      break;
+
+    }
     else
       return (
         <div>
           <nav className="nav-bar">
-            <button className="mdc-button" onClick={() =>this.setState({showLoanDetails : false})}>Daily Expenses</button>
-            <button className="mdc-button"  style={{backgroundColor: this.state.showLoanDetails ? 'red':'#2ed6a8'} } onClick={() =>this.setState({showLoanDetails : true})}>Loan Details</button>
-            <button className="mdc-button">Explore</button>
-            <button className="mdc-button">Notes</button>
+            <button className="mdc-button" onClick={() =>this.setState({currentView : 'expense'})}>Daily Expenses</button>
+            <button className="mdc-button" style={{backgroundColor: this.state.currentView == 'loan' ? 'red':'#2ed6a8'} } onClick={() =>this.setState({currentView : 'loan'})}>Loan Details</button>
+            <button className="mdc-button" style={{backgroundColor: this.state.currentView == 'utility'? 'blue':'#2ed6a8'} } onClick={() =>this.setState({currentView : 'utility'})}>Utility Bills</button>
+            <button className="mdc-button" style={{backgroundColor: this.state.currentView == 'note' ? 'green':'#2ed6a8'} } onClick={() =>this.setState({currentView : 'note'})}>Notes</button>
           </nav>
 
           <div className="mdc-card" >
             <section className="mdc-card__primary">
-              <h2 className="mdc-card__subtitle">{this.state.showLoanDetails?'Total Pending Loan':"This month you've spent:" }</h2>
+              <h2 className="mdc-card__subtitle">{this.state.currentView == 'loan'?'Total Pending Loan':"This month you've spent:" }</h2>
               <h1 className="mdc-card__title mdc-card__title--large center">
-                {this.state.showLoanDetails?this.state.totalLoan:this.state.currentMonth}
+                {this.state.currentView == 'loan'?this.state.totalLoan:this.state.currentMonth}
               </h1>
             </section>
             <section className="mdc-card__supporting-text">
               <ul>
-                <li>{this.state.showLoanDetails? 'Total Monthly EMI':'Previous month'}: <b>{this.state.showLoanDetails? this.state.totalEMI:this.state.previousMonth}</b></li>
-                <li>{this.state.showLoanDetails? 'Number Of Loan':'Monthly spending limit Remaining'}: <b>{this.state.showLoanDetails?this.state.loans.length:this.state.currentMonth.slice(0,1)+(parseFloat(this.state.limitPerMonth) - parseFloat(this.state.currentMonth.replace(/,/g,'').slice(1)))}</b></li>
+                <li>{this.state.currentView == 'loan'? 'Total Monthly EMI':'Previous month'}: <b>{this.state.currentView == 'loan'? this.state.totalEMI:this.state.previousMonth}</b></li>
+                <li>{this.state.currentView == 'loan'? 'Number Of Loan':'Monthly spending limit Remaining'}: <b>{this.state.currentView == 'loan'?this.state.loans.length:this.state.currentMonth.slice(0,1)+(parseFloat(this.state.limitPerMonth) - parseFloat(this.state.currentMonth.replace(/,/g,'').slice(1)))}</b></li>
               </ul>
             </section>
           </div>
+
           <ExpenseList
-            expenses={this.state.showLoanDetails?this.state.loans:this.state.expenses}
+            expenses={this.state.currentView == 'loan'?this.state.loans:this.state.currentView == 'utility'?this.state.utilitys:this.state.expenses}
             onSelect={this.handleExpenseSelect}
           />
           {(this.state.expenses.length >= this.state.maxRecToShow) &&
