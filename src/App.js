@@ -15,6 +15,7 @@ class App extends Component {
     super();
     this.handleChange = this.handleChange.bind(this);
     this.verifyLogin = this.verifyLogin.bind(this);
+    this.filterUtility = this.filterUtility.bind(this);
     this.clientId =
       "825310645531-8j0bnfk6ge5vb8q1j8mnq0sudop9ikod.apps.googleusercontent.com";
     this.spreadsheetId =
@@ -38,7 +39,8 @@ class App extends Component {
       previousMonth: undefined,
       showExpenseForm: false,
       maxRecToShow:30,
-      pinIsVfy:sessionStorage.getItem('pinIsVfy') == 'true'?true:false
+      pinIsVfy:sessionStorage.getItem('pinIsVfy') == 'true'?true:false,
+      filteredUtilityBills:[],
     };
     sessionStorage.setItem('pinIsVfy',this.state.pinIsVfy);
   }
@@ -443,6 +445,9 @@ class App extends Component {
           .map(this.parseUtility)
           .slice(0, this.state.maxRecToShow),
           totalUtilityBill: response.result.valueRanges[13].values[0][0],
+          filteredUtilityBills:(response.result.valueRanges[12].values || [])
+          .map(this.parseUtility)
+          .slice(0, this.state.maxRecToShow),
         });
       });
   }
@@ -580,7 +585,9 @@ class App extends Component {
       );
   }
 
- 
+  filterUtility(e){
+    this.state.filteredUtilityBills = this.state.utilitys.filter(val=> (val.category==e.target.value));
+  }
 
   renderExpenses() {
     if(this.state.showExpenseForm)
@@ -636,7 +643,7 @@ class App extends Component {
           <nav className="nav-bar">
             <button className="mdc-button" onClick={() =>this.setState({currentView : 'expense'})}>Daily Expenses</button>
             <button className="mdc-button" style={{backgroundColor: this.state.currentView == 'loan' ? 'red':'#2ed6a8'} } onClick={() =>this.setState({currentView : 'loan'})}>Loan Details</button>
-            <button className="mdc-button" style={{backgroundColor: this.state.currentView == 'utility'? 'blue':'#2ed6a8'} } onClick={() =>this.setState({currentView : 'utility'})}>Utility Bills</button>
+            <button className="mdc-button" style={{backgroundColor: this.state.currentView == 'utility'? '#d97423':'#2ed6a8'} } onClick={() =>this.setState({currentView : 'utility'})}>Utility Bills</button>
             <button className="mdc-button" style={{backgroundColor: this.state.currentView == 'note' ? 'green':'#2ed6a8'} } onClick={() =>this.setState({currentView : 'note'})}>Notes</button>
           </nav>
 
@@ -644,7 +651,7 @@ class App extends Component {
             <section className="mdc-card__primary">
               <h2 className="mdc-card__subtitle">{this.state.currentView == 'loan'?'Total Pending Loan':"This month you've spent:" }</h2>
               <h1 className="mdc-card__title mdc-card__title--large center">
-                {this.state.currentView == 'loan'?this.state.totalLoan:this.state.currentMonth}
+                {this.state.currentView == 'loan'?this.state.totalLoan:this.state.currentView == 'utility'? this.state.totalUtilityBill:this.state.currentMonth}
               </h1>
             </section>
             <section className="mdc-card__supporting-text">
@@ -652,11 +659,26 @@ class App extends Component {
                 <li>{this.state.currentView == 'loan'? 'Total Monthly EMI':'Previous month'}: <b>{this.state.currentView == 'loan'? this.state.totalEMI:this.state.previousMonth}</b></li>
                 <li>{this.state.currentView == 'loan'? 'Number Of Loan':'Monthly spending limit Remaining'}: <b>{this.state.currentView == 'loan'?this.state.loans.length:this.state.currentMonth.slice(0,1)+(parseFloat(this.state.limitPerMonth) - parseFloat(this.state.currentMonth.replace(/,/g,'').slice(1)))}</b></li>
               </ul>
+
+              {this.state.currentView != 'utility'?'':
+              <div className="mdc-form-field">
+                <select className="mdc-select" onChange={this.filterUtility}>
+                <option></option>
+                  {
+                    this.state.utilityCategories.map(element => {
+                      return ( <option>{element}</option>)   
+                    })
+                  }
+                </select>   
+              </div>
+            }
             </section>
+            
+           
           </div>
 
           <ExpenseList
-            expenses={this.state.currentView == 'loan'?this.state.loans:this.state.currentView == 'utility'?this.state.utilitys:this.state.expenses}
+            expenses={this.state.currentView == 'loan'?this.state.loans:this.state.currentView == 'utility'?this.state.filteredUtilityBills:this.state.expenses}
             onSelect={this.handleExpenseSelect}
           />
           {(this.state.expenses.length >= this.state.maxRecToShow) &&

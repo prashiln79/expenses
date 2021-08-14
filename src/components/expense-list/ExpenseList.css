@@ -9,12 +9,14 @@
   justify-content: center;
 }
 .mdc-list-item__end-detail {
-  width: fit-content;
+  width: auto;
 }
 
 .mdc-list-item__end-detail span{
   font-size: smaller;
   display: block;
+  text-align: end;
+  color: #b9b9b9;
 }
 
 .Groceries {
