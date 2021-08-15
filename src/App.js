@@ -123,7 +123,7 @@ class App extends Component {
         if(this.state.currentView == 'utility'){
           this.state.currentView = 'expense';
           this.state.expense = {
-            date: this.state.utility.startDate,
+            date: (new Date().getFullYear())+"-"+(((new Date().getMonth()+1)<10)?'0'+(new Date().getMonth()+1):(new Date().getMonth()+1))+"-"+(new Date().getDate()),
             description: this.state.utility.notes,
             category: this.state.utility.category,
             amount: this.state.utility.billAmount,
