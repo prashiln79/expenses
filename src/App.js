@@ -119,10 +119,23 @@ class App extends Component {
       : this.append).bind(this);
     submitAction(state).then(
       response => {
-        this.snackbar.show({
-          message: `Expense ${id ? "updated" : "added"}!`
-        });
-        this.load();
+
+        if(this.state.currentView == 'utility'){
+          this.state.currentView = 'expense';
+          this.state.expense = {
+            date: this.state.utility.startDate,
+            description: this.state.utility.notes,
+            category: this.state.utility.category,
+            amount: this.state.utility.billAmount,
+            account: 'Chequing'
+          }
+          this.handleExpenseSubmit();
+        }else{
+          this.snackbar.show({
+            message: `Expense ${id ? "updated" : "added"}!`
+          });
+          this.load();
+        }
       },
       response => {
         console.error("Something went wrong");
@@ -161,7 +174,24 @@ class App extends Component {
 
   handleExpenseDelete = (expense) => {
     this.setState({ processing: true, showExpenseForm: false });
-    const expenseRow = expense.id.substring(10);
+    let expenseRow;
+    let sheetId;
+    switch (this.state.currentView) {
+      
+      case 'expense':
+        expenseRow = expense.id.substring(10);
+        sheetId = 0;
+      break;
+      case 'loan':
+        expenseRow = expense.id.substring(7);
+        sheetId = 1994510126;
+      break;
+      case 'utility':
+        expenseRow = expense.id.substring(9);
+        sheetId = 1829259989;
+      break;
+    }
+
     window.gapi.client.sheets.spreadsheets
       .batchUpdate({
         spreadsheetId: this.spreadsheetId,
@@ -170,7 +200,7 @@ class App extends Component {
             {
               deleteDimension: {
                 range: {
-                  sheetId: 0,
+                  sheetId: sheetId,
                   dimension: "ROWS",
                   startIndex: expenseRow - 1,
                   endIndex: expenseRow
@@ -371,7 +401,7 @@ class App extends Component {
   append(expense) {
     return window.gapi.client.sheets.spreadsheets.values.append({
       spreadsheetId: this.spreadsheetId,
-      range: [this.state.currentView == 'loan'?"Loan!A1":this.state.currentView == 'utility'?"Utility!A1":"Expenses!A1"],
+      range: [this.state.currentView == 'loan'?"Loans!A1":this.state.currentView == 'utility'?"Utility!A1":"Expenses!A1"],
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
       values: [this.formatExpense(expense)]
@@ -642,8 +672,8 @@ class App extends Component {
         <div>
           <nav className="nav-bar">
             <button className="mdc-button" onClick={() =>this.setState({currentView : 'expense'})}>Daily Expenses</button>
-            <button className="mdc-button" style={{backgroundColor: this.state.currentView == 'loan' ? 'red':'#2ed6a8'} } onClick={() =>this.setState({currentView : 'loan'})}>Loan Details</button>
             <button className="mdc-button" style={{backgroundColor: this.state.currentView == 'utility'? '#d97423':'#2ed6a8'} } onClick={() =>this.setState({currentView : 'utility'})}>Utility Bills</button>
+            <button className="mdc-button" style={{backgroundColor: this.state.currentView == 'loan' ? 'red':'#2ed6a8'} } onClick={() =>this.setState({currentView : 'loan'})}>Loan Details</button>
             <button className="mdc-button" style={{backgroundColor: this.state.currentView == 'note' ? 'green':'#2ed6a8'} } onClick={() =>this.setState({currentView : 'note'})}>Notes</button>
           </nav>
 
@@ -658,20 +688,26 @@ class App extends Component {
               <ul>
                 <li>{this.state.currentView == 'loan'? 'Total Monthly EMI':'Previous month'}: <b>{this.state.currentView == 'loan'? this.state.totalEMI:this.state.previousMonth}</b></li>
                 <li>{this.state.currentView == 'loan'? 'Number Of Loan':'Monthly spending limit Remaining'}: <b>{this.state.currentView == 'loan'?this.state.loans.length:this.state.currentMonth.slice(0,1)+(parseFloat(this.state.limitPerMonth) - parseFloat(this.state.currentMonth.replace(/,/g,'').slice(1)))}</b></li>
+              
+                {
+                this.state.currentView != 'utility'?'':
+                <li>
+                  <div className="mdc-form-field">
+                    <select style={{ 'min-width': '20%'}} onChange={this.filterUtility}>
+                    <option>Select Categorie </option>
+                      {
+                        this.state.utilityCategories.map(element => {
+                          return ( <option>{element}</option>)   
+                        })
+                      }
+                    </select>   
+                  </div>
+                </li>
+                }
+              
               </ul>
 
-              {this.state.currentView != 'utility'?'':
-              <div className="mdc-form-field">
-                <select className="mdc-select" onChange={this.filterUtility}>
-                <option></option>
-                  {
-                    this.state.utilityCategories.map(element => {
-                      return ( <option>{element}</option>)   
-                    })
-                  }
-                </select>   
-              </div>
-            }
+              
             </section>
             
            
