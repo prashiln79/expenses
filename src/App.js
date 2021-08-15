@@ -460,7 +460,7 @@ class App extends Component {
           categories: categories,
           loanCategories:loanCategories,
           utilityCategories:utilityCategories,
-          expenses: (response.result.valueRanges[2].values || [])
+          expenses: (response.result.valueRanges[14].values || [])
             .map(this.parseExpense)
             .reverse()
             .slice(0, this.state.maxRecToShow),
@@ -693,7 +693,7 @@ class App extends Component {
 
           <div className="mdc-card" >
             <section className="mdc-card__primary">
-              <h2 className="mdc-card__subtitle">{this.state.currentView == 'loan'?'Total Pending Loan':"This month you've spent:" }</h2>
+              <h2 className="mdc-card__subtitle">{this.state.currentView == 'loan'?'Total Pending Loan':"This month you spent:" }</h2>
               <h1 className="mdc-card__title mdc-card__title--large center">
                 {this.state.currentView == 'loan'?this.state.totalLoan:this.state.currentView == 'utility'? this.state.totalUtilityBill:this.state.currentMonth}
               </h1>
