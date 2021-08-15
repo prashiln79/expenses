@@ -16,6 +16,7 @@ class App extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.verifyLogin = this.verifyLogin.bind(this);
     this.filterUtility = this.filterUtility.bind(this);
+    this.monthlyOnUtility = this.monthlyOnUtility.bind(this);
     this.clientId =
       "825310645531-8j0bnfk6ge5vb8q1j8mnq0sudop9ikod.apps.googleusercontent.com";
     this.spreadsheetId =
@@ -41,6 +42,7 @@ class App extends Component {
       maxRecToShow:30,
       pinIsVfy:sessionStorage.getItem('pinIsVfy') == 'true'?true:false,
       filteredUtilityBills:[],
+      currentExpenses:[]
     };
     sessionStorage.setItem('pinIsVfy',this.state.pinIsVfy);
   }
@@ -120,7 +122,7 @@ class App extends Component {
     submitAction(state).then(
       response => {
 
-        if(this.state.currentView == 'utility'){
+        if(this.state.currentView == 'utility' && !id ){
           this.state.currentView = 'expense';
           this.state.expense = {
             date: (new Date().getFullYear())+"-"+(((new Date().getMonth()+1)<10)?'0'+(new Date().getMonth()+1):(new Date().getMonth()+1))+"-"+(new Date().getDate()),
@@ -435,7 +437,8 @@ class App extends Component {
           "Data!G2:G50",
           "Data!H2:H50",
           "Utility!A2:F",
-          "Utility!G2:G2",
+          "Utility!H2:H2",
+          "Current!A2:E"
         ]
       })
       .then(response => {
@@ -478,6 +481,7 @@ class App extends Component {
           filteredUtilityBills:(response.result.valueRanges[12].values || [])
           .map(this.parseUtility)
           .slice(0, this.state.maxRecToShow),
+          currentExpenses: response.result.valueRanges[14].values
         });
       });
   }
@@ -619,6 +623,16 @@ class App extends Component {
     this.state.filteredUtilityBills = this.state.utilitys.filter(val=> (val.category==e.target.value));
   }
 
+  monthlyOnUtility(){
+    let sum = 0;
+     this.state.currentExpenses.forEach((num)=>{
+      if(this.state.utilityCategories.includes(num[3])){
+        sum+= (parseFloat(num[4].replace('₹','').replace(/,/g,'')));
+      }
+    })
+    return sum;
+  }
+
   renderExpenses() {
     if(this.state.showExpenseForm)
     switch (this.state.currentView){
@@ -688,7 +702,9 @@ class App extends Component {
               <ul>
                 <li>{this.state.currentView == 'loan'? 'Total Monthly EMI':'Previous month'}: <b>{this.state.currentView == 'loan'? this.state.totalEMI:this.state.previousMonth}</b></li>
                 <li>{this.state.currentView == 'loan'? 'Number Of Loan':'Monthly spending limit Remaining'}: <b>{this.state.currentView == 'loan'?this.state.loans.length:this.state.currentMonth.slice(0,1)+(parseFloat(this.state.limitPerMonth) - parseFloat(this.state.currentMonth.replace(/,/g,'').slice(1)))}</b></li>
-              
+                {this.state.currentView != 'expense'?'':
+                  <li>Monthly spending on utility:<b>₹{this.monthlyOnUtility()}</b></li>
+                }
                 {
                 this.state.currentView != 'utility'?'':
                 <li>
@@ -706,13 +722,15 @@ class App extends Component {
                 }
               
               </ul>
-
-              
             </section>
             
            
           </div>
-
+          {this.state.currentView == 'note'?
+          <div>
+          <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSONrFbXQjK_ynFRGOeEyntjR-BTgfYY4cQwnCmE3u-eDqeLUFsBV4Hdc6jRHcGGSxidfEAYAshpTkQ/pubchart?oid=541389695&amp;format=interactive"></iframe>
+          </div>:''
+          }
           <ExpenseList
             expenses={this.state.currentView == 'loan'?this.state.loans:this.state.currentView == 'utility'?this.state.filteredUtilityBills:this.state.expenses}
             onSelect={this.handleExpenseSelect}

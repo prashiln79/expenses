@@ -115,3 +115,8 @@ a.material-icons {
   border: 0;
   color: aliceblue;
 }
+
+iframe{
+  width: 103%;
+  height: 60vh;
+}
