@@ -726,11 +726,7 @@ class App extends Component {
             
            
           </div>
-          {this.state.currentView == 'note'?
-          <div>
-          <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSONrFbXQjK_ynFRGOeEyntjR-BTgfYY4cQwnCmE3u-eDqeLUFsBV4Hdc6jRHcGGSxidfEAYAshpTkQ/pubchart?oid=541389695&amp;format=interactive"></iframe>
-          </div>:''
-          }
+
           <ExpenseList
             expenses={this.state.currentView == 'loan'?this.state.loans:this.state.currentView == 'utility'?this.state.filteredUtilityBills:this.state.expenses}
             onSelect={this.handleExpenseSelect}
