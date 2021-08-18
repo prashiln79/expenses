@@ -460,7 +460,7 @@ class App extends Component {
           categories: categories,
           loanCategories:loanCategories,
           utilityCategories:utilityCategories,
-          expenses: (response.result.valueRanges[14].values || [])
+          expenses: (response.result.valueRanges[2].values || [])
             .map(this.parseExpense)
             .reverse()
             .slice(0, this.state.maxRecToShow),
